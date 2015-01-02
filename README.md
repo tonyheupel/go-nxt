@@ -8,8 +8,8 @@ Either install it from the command-line:
 $ go install github.com/tonyheupel/go-nxt
 ```
 
-or add as a dependency emfile and install it:
-```golang
+or add as a dependency in your code files:
+```go
 import "github.com/tonyheupel/go-nxt"
 ```
 ```shell
@@ -22,7 +22,7 @@ brick over Bluetooth.  In the examples below, the brick is connected at
 ``` /dev/tty.NXT-DevB ```:
 
 
-```golang
+```go
 /// The file bot creates a new NXT bot reference
 
 package main
