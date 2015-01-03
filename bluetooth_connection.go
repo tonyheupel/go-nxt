@@ -74,14 +74,3 @@ func (b bluetoothConnection) Close() error {
 	return b.conduit.Close()
 }
 
-func calculateLSB(number int) byte {
-	return byte(number & 0xff)
-}
-
-func calculateMSB(number int) byte {
-	return byte((number >> 8) & 0xff)
-}
-
-func calculateIntFromLSBAndMSB(lsb byte, msb byte) int {
-	return int((msb << 8) | lsb)
-}
