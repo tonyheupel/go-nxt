@@ -4,7 +4,6 @@ package nxt
 
 import (
 	"fmt"
-	"io"
 )
 
 // NXT represents the thing that a caller interacts with
@@ -13,7 +12,6 @@ type NXT struct {
 	Name          string
 	DevicePath    string
 	connection    Connection
-	communication io.ReadWriteCloser
 }
 
 // NewNXT creates a new NXT with the given name and
@@ -35,17 +33,10 @@ func (n *NXT) String() string {
 }
 
 func (n *NXT) Connect() error {
-	communication, err := n.connection.Open()
-
-	if err != nil {
-		return err
-	}
-
-	n.communication = communication
-
-	return nil
+	return n.connection.Open()
 }
 
 func (n *NXT) Disconnect() error {
-	return n.communication.Close()
+	return n.connection.Close()
 }
+

@@ -1,5 +1,9 @@
 package nxt
 
+import (
+	"fmt"
+)
+
 type CommandType byte
 
 const (
@@ -18,32 +22,13 @@ type Telegram struct {
 	Message []byte
 }
 
-type ReplyStatus byte
+func (t Telegram) Bytes() []byte {
+	commandInfo := []byte{byte(t.Type), byte(t.Command)}
+	return append(commandInfo, t.Message...)
+}
 
-const (
-	Success                                   ReplyStatus = 0x00
-	PendingCommunicationTransactionInProgress             = 0x20
-	SpecifiedMailboxQueueIsEmpty                          = 0x40
-	RequestFailed                                         = 0xBD
-	UnknownCommandOpcode                                  = 0xBE
-	InsanePacket                                          = 0xBF
-	DataContainsOutOfRangeValues                          = 0xC0
-	CommunicationBusError                                 = 0xDD
-	NoFreeMemoryInCommunicationBuffer                     = 0xDE
-	SpecifiedConnectionIsNotValid                         = 0xDF
-	SpecifiedConnectionIsNotConfiguredOrBusy              = 0xE0
-	NoActiveProgram                                       = 0xEC
-	IllegalSizeSpecified                                  = 0xED
-	IllegalMailboxQueueIDSpecified                        = 0xEE
-	AttemptedToAccessInvalidFieldOfStructure              = 0xEF
-	BadInputOrOutputSpecified                             = 0xF0
-	InsufficientMemoryAvailable                           = 0xFB
-	BadArguments                                          = 0xFF
-)
-
-type ReplyTelegram struct {
-	*Telegram
-	Status ReplyStatus
+func (t Telegram) String() string {
+	return fmt.Sprintf("Type: 0x%02x, Command: 0x%02x, Message: %v", t.Type, t.Command, t.Message)
 }
 
 func newTelegramWithMessage(commandType CommandType, command Command, message []byte) *Telegram {
@@ -79,15 +64,4 @@ func NewDirectCommand(requiresResponse bool, command Command, message []byte) *T
 
 func NewSystemCommand(requiresResponse bool, command Command, message []byte) *Telegram {
 	return newCommand(requiresResponse, SystemRequiresResponse, SystemNoResponse, command, message)
-}
-
-func NewReply(replyForCommand Command, status ReplyStatus, message []byte) *ReplyTelegram {
-	return &ReplyTelegram{
-		Telegram: &Telegram{
-			Type:    Reply,
-			Command: replyForCommand,
-			Message: message,
-		},
-		Status: status,
-	}
 }

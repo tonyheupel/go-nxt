@@ -1,8 +1,5 @@
 package nxt
 
-import (
-	"io"
-)
 
 type lightReadWriteCloser struct {
 	// TODO: Put in testing flags to simulate scenarios
@@ -31,6 +28,7 @@ func (r *lightReadWriteCloser) Close() error {
 }
 
 type mockConnection struct {
+	*lightReadWriteCloser
 	devicePort string
 }
 
@@ -38,10 +36,13 @@ func (c mockConnection) DevicePort() string {
 	return c.devicePort
 }
 
-func (c *mockConnection) Open() (io.ReadWriteCloser, error) {
-	return &lightReadWriteCloser{}, nil
+func (c *mockConnection) Open() error {
+	return nil
 }
 
 func NewMockConnection(devicePort string) Connection {
-	return &mockConnection{devicePort: devicePort}
+	return &mockConnection{
+		lightReadWriteCloser: &lightReadWriteCloser{},
+		devicePort: devicePort,
+	}
 }
