@@ -49,9 +49,6 @@ func NewReply(replyForCommand Command, status ReplyStatus, message []byte) *Repl
 }
 
 func newReplyFromBytes(replyBytes []byte, replyLength int) *ReplyTelegram {
-	fmt.Println("Reply length:", replyLength)
-	fmt.Println("Reply bytes:", replyBytes)
-
 	var replyMessage []byte
 	if replyLength == len(replyBytes) {
 		replyMessage = replyBytes

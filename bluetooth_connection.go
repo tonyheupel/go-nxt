@@ -55,7 +55,7 @@ func (b bluetoothConnection) Read(p []byte) (n int, err error) {
 		copy(p, bluetoothMessage[2:])
 	}
 
-	fmt.Println("Length:", length, "Response:",p)
+	fmt.Println("Length:", length, "Response:", p)
 	return length, nil
 }
 
@@ -85,4 +85,3 @@ func calculateMSB(number int) byte {
 func calculateIntFromLSBAndMSB(lsb byte, msb byte) int {
 	return int((msb << 8) | lsb)
 }
-

@@ -9,9 +9,9 @@ import (
 // NXT represents the thing that a caller interacts with
 // to control an NXT brick.
 type NXT struct {
-	Name          string
-	DevicePath    string
-	connection    Connection
+	Name       string
+	DevicePath string
+	connection Connection
 }
 
 // NewNXT creates a new NXT with the given name and
@@ -39,4 +39,3 @@ func (n *NXT) Connect() error {
 func (n *NXT) Disconnect() error {
 	return n.connection.Close()
 }
-
