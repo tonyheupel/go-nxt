@@ -28,7 +28,7 @@ brick over Bluetooth.  In the examples below, the brick is connected at
 package main
 
 import (
-	"go-nxt"
+	"github.com/tonyheupel/go-nxt"
 	"fmt"
 )
 
