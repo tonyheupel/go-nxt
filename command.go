@@ -2,10 +2,10 @@ package nxt
 
 type Command struct {
 	Telegram     *Telegram
-	ReplyChannel chan ReplyTelegram
+	ReplyChannel chan *ReplyTelegram
 }
 
-func newCommand(responseRequiredCommandType CommandType, noResponseRequiredCommandType CommandType, command CommandCode, message []byte, replyChannel chan ReplyTelegram) *Command {
+func newCommand(responseRequiredCommandType CommandType, noResponseRequiredCommandType CommandType, command CommandCode, message []byte, replyChannel chan *ReplyTelegram) *Command {
 	var commandType CommandType
 
 	if replyChannel != nil {
@@ -20,10 +20,10 @@ func newCommand(responseRequiredCommandType CommandType, noResponseRequiredComma
 	}
 }
 
-func NewDirectCommand(command CommandCode, message []byte, replyChannel chan ReplyTelegram) *Command {
+func NewDirectCommand(command CommandCode, message []byte, replyChannel chan *ReplyTelegram) *Command {
 	return newCommand(DirectRequiresResponse, DirectNoResponse, command, message, replyChannel)
 }
 
-func NewSystemCommand(command CommandCode, message []byte, replyChannel chan ReplyTelegram) *Command {
+func NewSystemCommand(command CommandCode, message []byte, replyChannel chan *ReplyTelegram) *Command {
 	return newCommand(SystemRequiresResponse, SystemNoResponse, command, message, replyChannel)
 }

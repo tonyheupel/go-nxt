@@ -78,6 +78,7 @@ func getReplyFromReader(reader io.Reader) *ReplyTelegram {
 	numRead, _ := reader.Read(response)
 
 	// TODO: Do not ignore the error here
+	fmt.Println("Response:", response)
 
 	return newReplyFromBytes(response, numRead)
 }

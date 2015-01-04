@@ -51,7 +51,7 @@ func (b bluetoothConnection) Read(p []byte) (n int, err error) {
 	var length int
 	if bytesRead >= 2 {
 		// Remove bluetooth headers and only get length back
-		length = calculateIntFromLSBAndMSB(bluetoothMessage[0], bluetoothMessage[1])
+		length = CalculateIntFromLSBAndMSB(bluetoothMessage[0], bluetoothMessage[1])
 		copy(p, bluetoothMessage[2:])
 	}
 
@@ -62,7 +62,7 @@ func (b bluetoothConnection) Read(p []byte) (n int, err error) {
 func (b *bluetoothConnection) Write(p []byte) (n int, err error) {
 	//TODO: Add the first two bytes of bluetooth length headers
 	telegramLength := len(p)
-	bluetoothHeader := []byte{calculateLSB(telegramLength), calculateMSB(telegramLength)}
+	bluetoothHeader := []byte{CalculateLSB(telegramLength), CalculateMSB(telegramLength)}
 
 	bluetoothMessage := append(bluetoothHeader, p...)
 

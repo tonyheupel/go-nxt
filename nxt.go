@@ -12,8 +12,7 @@ type NXT struct {
 	Name                    string
 	DevicePath              string
 	connection              Connection
-	CommandChannel          chan Command
-	disconnectNotifyChannel chan<- bool
+	CommandChannel          chan *Command
 }
 
 // NewNXT creates a new NXT with the given name and
@@ -34,9 +33,8 @@ func (n *NXT) String() string {
 	return fmt.Sprintf("NXT named %s, at %s", n.Name, n.DevicePath)
 }
 
-func (n *NXT) Connect(disconnectNotifyChannel chan<- bool) error {
-	n.CommandChannel = make(chan Command)
-	n.disconnectNotifyChannel = disconnectNotifyChannel
+func (n *NXT) Connect() error {
+	n.CommandChannel = make(chan *Command)
 
 	err := n.connection.Open()
 
@@ -49,13 +47,11 @@ func (n *NXT) Connect(disconnectNotifyChannel chan<- bool) error {
 	return nil
 }
 
-func (n *NXT) Disconnect() error {
+func (n *NXT) Disconnect() (err error) {
 	close(n.CommandChannel)
 
-	err := n.connection.Close()
-
-	if n.disconnectNotifyChannel != nil {
-		n.disconnectNotifyChannel <- true
+	if n.connection != nil {
+		err = n.connection.Close()
 	}
 
 	return err
@@ -64,12 +60,16 @@ func (n *NXT) Disconnect() error {
 func (n *NXT) messageLoop() {
 
 	for {
-		command := <-n.CommandChannel
-		//TODO: Do it
+		command, ok := <-n.CommandChannel
+		if !ok {
+			//Closed channel, stop listening
+			return
+		}
+
 		n.connection.Write(command.Telegram.Bytes())
 
 		if command.Telegram.IsResponseRequired() {
-			command.ReplyChannel <- *getReplyFromReader(n.connection)
+			command.ReplyChannel <- getReplyFromReader(n.connection)
 		}
 	}
 }
