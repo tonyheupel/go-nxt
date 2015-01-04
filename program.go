@@ -5,9 +5,7 @@ func startProgram(n NXT, requireResponse bool, filename string) error {
 
 	telegram := NewDirectCommand(requireResponse, 0x00, file)
 
-	command := telegram.Bytes()
-
-	_, err := n.connection.Write(command)
+	_, err := n.connection.Write(telegram.Bytes())
 
 	if err != nil {
 		return err
@@ -23,6 +21,33 @@ func (n NXT) StartProgram(filename string) error {
 func (n NXT) StartProgramSync(filename string) (*ReplyTelegram, error) {
 
 	err := startProgram(n, true, filename)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return getReplyFromReader(n.connection), nil
+}
+
+func stopProgram(n NXT, requireResponse bool) error {
+	telegram := NewDirectCommand(requireResponse, 0x01, nil)
+
+	_, err := n.connection.Write(telegram.Bytes())
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (n NXT) StopProgram() error {
+	return stopProgram(n, false)
+}
+
+func (n NXT) StopProgramSync() (*ReplyTelegram, error) {
+
+	err := stopProgram(n, true)
 
 	if err != nil {
 		return nil, err

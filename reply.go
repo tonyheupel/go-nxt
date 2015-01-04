@@ -5,6 +5,7 @@ import (
 	"io"
 )
 
+// ReplyStatus is the possible status codes returned as part of a ReplyTelegram's Status value
 type ReplyStatus byte
 
 const (
@@ -28,15 +29,23 @@ const (
 	BadArguments                                          = 0xFF
 )
 
+// ReplyTelegram is the response to a command when the caller waits for the reply
 type ReplyTelegram struct {
 	*Telegram
 	Status ReplyStatus
 }
 
+// Represent the ReplyTelegram as a string
 func (r ReplyTelegram) String() string {
 	return fmt.Sprintf("Status: 0x%02x, %v", r.Status, r.Telegram)
 }
 
+// IsSuccess returns true when the reply indicates a successful operation
+func (r ReplyTelegram) IsSuccess() bool {
+	return r.Status == Success
+}
+
+// NewReply creates a new ReplyTelegram for the given command, status, and an optional reply message; pass nil if there is no reply message for the command
 func NewReply(replyForCommand Command, status ReplyStatus, message []byte) *ReplyTelegram {
 	return &ReplyTelegram{
 		Telegram: &Telegram{

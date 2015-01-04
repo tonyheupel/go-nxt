@@ -7,7 +7,6 @@ func TestCalulateIntFromLSBAndMSB(t *testing.T) {
 
 	actual := calculateIntFromLSBAndMSB(70, 151)
 
-
 	if expected != actual {
 		t.Errorf("Expected: %d, Actual: %d", expected, actual)
 	}

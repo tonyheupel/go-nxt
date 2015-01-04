@@ -13,5 +13,4 @@ func (n NXT) GetBatteryLevelMillivolts() (int, error) {
 
 	return calculateIntFromLSBAndMSB(reply.Message[0], reply.Message[1]), nil
 
-
 }

@@ -73,4 +73,3 @@ func (b *bluetoothConnection) Write(p []byte) (n int, err error) {
 func (b bluetoothConnection) Close() error {
 	return b.conduit.Close()
 }
-
