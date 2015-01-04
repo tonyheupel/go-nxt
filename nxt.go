@@ -9,12 +9,11 @@ import (
 // NXT represents the thing that a caller interacts with
 // to control an NXT brick.
 type NXT struct {
-	Name              string
-	DevicePath        string
-	connection        Connection
-	CommandChannel    chan Telegram
-	ReplyChannel      chan ReplyTelegram
-	DisconnectChannel chan bool
+	Name                    string
+	DevicePath              string
+	connection              Connection
+	CommandChannel          chan Command
+	disconnectNotifyChannel chan<- bool
 }
 
 // NewNXT creates a new NXT with the given name and
@@ -35,19 +34,29 @@ func (n *NXT) String() string {
 	return fmt.Sprintf("NXT named %s, at %s", n.Name, n.DevicePath)
 }
 
-func (n *NXT) Connect() error {
-	n.CommandChannel = make(chan Telegram)
-	n.ReplyChannel = make(chan ReplyTelegram)
-	n.DisconnectChannel = make(chan bool)
+func (n *NXT) Connect(disconnectNotifyChannel chan<- bool) error {
+	n.CommandChannel = make(chan Command)
+	n.disconnectNotifyChannel = disconnectNotifyChannel
+
+	err := n.connection.Open()
+
+	if err != nil {
+		return err
+	}
 
 	go n.messageLoop()
 
-	return n.connection.Open()
+	return nil
 }
 
 func (n *NXT) Disconnect() error {
+	close(n.CommandChannel)
+
 	err := n.connection.Close()
-	n.DisconnectChannel <- true
+
+	if n.disconnectNotifyChannel != nil {
+		n.disconnectNotifyChannel <- true
+	}
 
 	return err
 }
@@ -55,18 +64,12 @@ func (n *NXT) Disconnect() error {
 func (n *NXT) messageLoop() {
 
 	for {
-		select {
-		case telegram := <-n.CommandChannel:
-			//TODO: Do it
-			n.connection.Write(telegram.Bytes())
+		command := <-n.CommandChannel
+		//TODO: Do it
+		n.connection.Write(command.Telegram.Bytes())
 
-			if telegram.IsResponseRequired() {
-				n.ReplyChannel <- *getReplyFromReader(n.connection)
-			}
-
-		//case <-n.DisconnectChannel:
-		//	n.connection.Close()
-		//	return
+		if command.Telegram.IsResponseRequired() {
+			command.ReplyChannel <- *getReplyFromReader(n.connection)
 		}
 	}
 }
