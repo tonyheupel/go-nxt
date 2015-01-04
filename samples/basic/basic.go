@@ -8,14 +8,9 @@ import (
 )
 
 func main() {
-	device := nxt.NewNXT("heupel-home-bot", "/dev/tty.NXT-DevB")
+	n := nxt.NewNXT("heupel-home-bot", "/dev/tty.NXT-DevB")
 
-	fmt.Println(device)
-	//traditional(device)
-	channels(device)
-}
-
-func channels(n *nxt.NXT) {
+	fmt.Println(n)
 	reply := make(chan *nxt.ReplyTelegram)
 	err := n.Connect()
 
@@ -60,53 +55,3 @@ func channels(n *nxt.NXT) {
 
 	n.Disconnect()
 }
-
-//func traditional(n *nxt.NXT) {
-//	err := n.Connect()
-//
-//	if err != nil {
-//		fmt.Println(err)
-//		return
-//	}
-//
-//	fmt.Println("Connected!")
-//
-//	n.StartProgramSync("DREW.rxe")
-//
-//	// Normally use StartProgram but we want to see the name of the running program
-//	// so we need to wait
-//
-//	runningProgram, err := n.GetCurrentProgramName()
-//
-//	if err != nil {
-//		fmt.Println(err)
-//		return
-//	}
-//
-//	fmt.Println("Current running program:", runningProgram)
-//
-//	fmt.Println("Stopping running program...")
-//	stopProgramReply, err := n.StopProgramSync()
-//
-//	if err != nil {
-//		fmt.Println(err)
-//		return
-//	}
-//
-//	if stopProgramReply.IsSuccess() {
-//		fmt.Println("Stopped running program successfully!")
-//	} else {
-//		fmt.Println("Was unable to stop the program.")
-//	}
-//
-//	batteryMillivolts, err := n.GetBatteryLevelMillivolts()
-//
-//	if err != nil {
-//		fmt.Println(err)
-//		return
-//	}
-//
-//	fmt.Println("Battery level (mv):", batteryMillivolts)
-//
-//	n.Disconnect()
-//}

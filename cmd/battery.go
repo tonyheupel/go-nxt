@@ -13,7 +13,7 @@ type GetBatteryLevelReply struct {
 
 func ParseGetBatteryLevelReply(reply *nxt.ReplyTelegram) *GetBatteryLevelReply {
 	return &GetBatteryLevelReply{
-		ReplyTelegram: reply,
+		ReplyTelegram:          reply,
 		BatteryLevelMillivolts: nxt.CalculateIntFromLSBAndMSB(reply.Message[0], reply.Message[1]),
 	}
 }

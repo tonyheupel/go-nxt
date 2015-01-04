@@ -24,6 +24,6 @@ type GetCurrentProgramNameReply struct {
 func ParseGetCurrentProgramNameReply(reply *nxt.ReplyTelegram) *GetCurrentProgramNameReply {
 	return &GetCurrentProgramNameReply{
 		ReplyTelegram: reply,
-		Filename: string(reply.Message),
+		Filename:      string(reply.Message),
 	}
 }
