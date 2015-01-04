@@ -1,8 +1,8 @@
-package commands
+package cmd
 
 import "github.com/tonyheupel/go-nxt"
 
-func NewGetBatteryLevel(replyChannel chan *nxt.ReplyTelegram) *nxt.Command {
+func GetBatteryLevel(replyChannel chan *nxt.ReplyTelegram) *nxt.Command {
 	return nxt.NewDirectCommand(0x0B, nil, replyChannel)
 }
 

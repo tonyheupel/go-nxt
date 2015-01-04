@@ -75,10 +75,8 @@ func newReplyFromBytes(replyBytes []byte, replyLength int) *ReplyTelegram {
 func getReplyFromReader(reader io.Reader) *ReplyTelegram {
 	response := make([]byte, 64)
 
-	numRead, _ := reader.Read(response)
-
 	// TODO: Do not ignore the error here
-	fmt.Println("Response:", response)
+	numRead, _ := reader.Read(response)
 
 	return newReplyFromBytes(response, numRead)
 }

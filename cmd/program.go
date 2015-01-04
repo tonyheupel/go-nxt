@@ -1,18 +1,18 @@
-package commands
+package cmd
 
 import "github.com/tonyheupel/go-nxt"
 
-func NewStartProgram(filename string, replyChannel chan *nxt.ReplyTelegram) *nxt.Command {
+func StartProgram(filename string, replyChannel chan *nxt.ReplyTelegram) *nxt.Command {
 	file := append([]byte(filename), 0) // null-terminated string
 
 	return nxt.NewDirectCommand(0x00, file, replyChannel)
 }
 
-func NewStopProgram(replyChannel chan *nxt.ReplyTelegram) *nxt.Command {
+func StopProgram(replyChannel chan *nxt.ReplyTelegram) *nxt.Command {
 	return nxt.NewDirectCommand(0x01, nil, replyChannel)
 }
 
-func NewGetCurrentProgramName(replyChannel chan *nxt.ReplyTelegram) *nxt.Command {
+func GetCurrentProgramName(replyChannel chan *nxt.ReplyTelegram) *nxt.Command {
 	return nxt.NewDirectCommand(0x11, nil, replyChannel)
 }
 

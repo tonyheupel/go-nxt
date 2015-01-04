@@ -1,7 +1,6 @@
 package nxt
 
 import (
-	"fmt"
 	"github.com/tarm/goserial"
 	"io"
 )
@@ -55,7 +54,6 @@ func (b bluetoothConnection) Read(p []byte) (n int, err error) {
 		copy(p, bluetoothMessage[2:])
 	}
 
-	fmt.Println("Length:", length, "Response:", p)
 	return length, nil
 }
 
@@ -65,8 +63,6 @@ func (b *bluetoothConnection) Write(p []byte) (n int, err error) {
 	bluetoothHeader := []byte{CalculateLSB(telegramLength), CalculateMSB(telegramLength)}
 
 	bluetoothMessage := append(bluetoothHeader, p...)
-
-	fmt.Println("Bluetooth Message:", bluetoothMessage)
 
 	return b.conduit.Write(bluetoothMessage)
 }
