@@ -1,73 +1,77 @@
 package nxt
 
-func startProgram(n NXT, requireResponse bool, filename string) error {
+import "fmt"
+
+func StartProgram(filename string, replyChannel chan *ReplyTelegram) *Command {
 	file := append([]byte(filename), 0) // null-terminated string
 
-	telegram := NewDirectCommand(requireResponse, 0x00, file)
-
-	_, err := n.connection.Write(telegram.Bytes())
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return NewDirectCommand(0x00, file, replyChannel)
 }
 
-func (n NXT) StartProgram(filename string) error {
-	return startProgram(n, false, filename)
+func StopProgram(replyChannel chan *ReplyTelegram) *Command {
+	return NewDirectCommand(0x01, nil, replyChannel)
+}
+
+func GetCurrentProgramName(replyChannel chan *ReplyTelegram) *Command {
+	return NewDirectCommand(0x11, nil, replyChannel)
+}
+
+type GetCurrentProgramNameReply struct {
+	*ReplyTelegram
+	Filename string
+}
+
+func ParseGetCurrentProgramNameReply(reply *ReplyTelegram) *GetCurrentProgramNameReply {
+	return &GetCurrentProgramNameReply{
+		ReplyTelegram: reply,
+		Filename:      string(reply.Message),
+	}
+}
+
+func (n NXT) StartProgram(filename string) {
+	n.CommandChannel <- StartProgram(filename, nil)
 }
 
 func (n NXT) StartProgramSync(filename string) (*ReplyTelegram, error) {
+	reply := make(chan *ReplyTelegram)
 
-	err := startProgram(n, true, filename)
+	n.CommandChannel <- StartProgram(filename, reply)
+	startProgramReply := <-reply
 
-	if err != nil {
-		return nil, err
+	if !startProgramReply.IsSuccess() {
+		return startProgramReply, fmt.Errorf("Error trying to start program \"%s\": %v", filename, startProgramReply)
 	}
 
-	return getReplyFromReader(n.connection), nil
+	return startProgramReply, nil
+
 }
 
-func stopProgram(n NXT, requireResponse bool) error {
-	telegram := NewDirectCommand(requireResponse, 0x01, nil)
-
-	_, err := n.connection.Write(telegram.Bytes())
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (n NXT) StopProgram() error {
-	return stopProgram(n, false)
+func (n NXT) StopProgram() {
+	n.CommandChannel <- StopProgram(nil)
 }
 
 func (n NXT) StopProgramSync() (*ReplyTelegram, error) {
+	reply := make(chan *ReplyTelegram)
 
-	err := stopProgram(n, true)
+	n.CommandChannel <- StopProgram(reply)
+	stopProgramReply := <-reply
 
-	if err != nil {
-		return nil, err
+	if !stopProgramReply.IsSuccess() {
+		return stopProgramReply, fmt.Errorf("Error trying to stop program: %v", stopProgramReply)
 	}
 
-	return getReplyFromReader(n.connection), nil
+	return stopProgramReply, nil
+
 }
-
 func (n NXT) GetCurrentProgramName() (string, error) {
-	telegram := NewDirectCommand(true, 0x11, nil)
+	reply := make(chan *ReplyTelegram)
 
-	command := telegram.Bytes()
+	n.CommandChannel <- GetCurrentProgramName(reply)
+	programNameReply := ParseGetCurrentProgramNameReply(<-reply)
 
-	_, err := n.connection.Write(command)
-
-	if err != nil {
-		return "", err
+	if !programNameReply.IsSuccess() {
+		return "", fmt.Errorf("Error getting current program name:", programNameReply)
 	}
 
-	reply := getReplyFromReader(n.connection)
-
-	return string(reply.Message), nil
+	return programNameReply.Filename, nil
 }

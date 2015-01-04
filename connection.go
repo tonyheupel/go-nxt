@@ -9,14 +9,14 @@ type Connection interface {
 }
 
 // TODO: Find a better place for these
-func calculateLSB(number int) byte {
+func CalculateLSB(number int) byte {
 	return byte(number & 0xff)
 }
 
-func calculateMSB(number int) byte {
+func CalculateMSB(number int) byte {
 	return byte((number >> 8) & 0xff)
 }
 
-func calculateIntFromLSBAndMSB(lsb byte, msb byte) int {
+func CalculateIntFromLSBAndMSB(lsb byte, msb byte) int {
 	return (int(msb) << 8) + int(lsb)
 }

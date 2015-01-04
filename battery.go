@@ -1,16 +1,33 @@
 package nxt
 
+import "fmt"
+
+func GetBatteryLevel(replyChannel chan *ReplyTelegram) *Command {
+	return NewDirectCommand(0x0B, nil, replyChannel)
+}
+
+type GetBatteryLevelReply struct {
+	*ReplyTelegram
+	BatteryLevelMillivolts int
+}
+
+func ParseGetBatteryLevelReply(reply *ReplyTelegram) *GetBatteryLevelReply {
+	return &GetBatteryLevelReply{
+		ReplyTelegram:          reply,
+		BatteryLevelMillivolts: CalculateIntFromLSBAndMSB(reply.Message[0], reply.Message[1]),
+	}
+}
+
 func (n NXT) GetBatteryLevelMillivolts() (int, error) {
-	telegram := NewDirectCommand(true, 0x0B, nil)
+	reply := make(chan *ReplyTelegram)
 
-	_, err := n.connection.Write(telegram.Bytes())
+	n.CommandChannel <- GetBatteryLevel(reply)
+	batteryLevelReply := ParseGetBatteryLevelReply(<-reply)
 
-	if err != nil {
-		return 0, nil
+	if !batteryLevelReply.IsSuccess() {
+		return 0, fmt.Errorf("Error getting battery level: %v", batteryLevelReply)
 	}
 
-	reply := getReplyFromReader(n.connection)
-
-	return calculateIntFromLSBAndMSB(reply.Message[0], reply.Message[1]), nil
+	return batteryLevelReply.BatteryLevelMillivolts, nil
 
 }

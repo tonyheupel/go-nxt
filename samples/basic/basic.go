@@ -13,16 +13,31 @@ func main() {
 	err := n.Connect()
 
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Could not connect:", err)
 		return
 	}
 
 	fmt.Println("Connected!")
 
-	n.StartProgramSync("DREW.rxe")
+	friendly(n)
+	time.Sleep(2 * time.Second)
+	channels(n)
+
+	n.Disconnect()
+}
+
+func friendly(n *nxt.NXT) {
 
 	// Normally use StartProgram but we want to see the name of the running program
 	// so we need to wait
+	startProgramReply, err := n.StartProgramSync("DREW.rxe")
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("Reply from StartProgram:", startProgramReply)
 
 	runningProgram, err := n.GetCurrentProgramName()
 
@@ -57,6 +72,40 @@ func main() {
 	}
 
 	fmt.Println("Battery level (mv):", batteryMillivolts)
+}
 
-	n.Disconnect()
+func channels(n *nxt.NXT) {
+	reply := make(chan *nxt.ReplyTelegram)
+
+	n.CommandChannel <- nxt.StartProgram("DREW.rxe", reply)
+	fmt.Println("Reply from StartProgram:", <-reply)
+
+	// Normally would pass in nil for the reply channel and not wait,
+	//but we want to see the name of the running program so we need to wait
+
+	n.CommandChannel <- nxt.GetCurrentProgramName(reply)
+	runningProgramReply := nxt.ParseGetCurrentProgramNameReply(<-reply)
+	fmt.Println("Current running program:", runningProgramReply.Filename)
+
+	time.Sleep(3 * time.Second) // Wait 3 seconds
+
+	fmt.Println("Stopping running program...")
+	n.CommandChannel <- nxt.StopProgram(reply)
+
+	stopProgramReply := <-reply
+
+	if stopProgramReply.IsSuccess() {
+		fmt.Println("Stopped running program successfully!")
+	} else {
+		fmt.Println("Was unable to stop the program.")
+	}
+
+	n.CommandChannel <- nxt.GetBatteryLevel(reply)
+	batteryLevelReply := nxt.ParseGetBatteryLevelReply(<-reply)
+
+	if batteryLevelReply.IsSuccess() {
+		fmt.Println("Battery level (mv):", batteryLevelReply.BatteryLevelMillivolts)
+	} else {
+		fmt.Println("Was unable to get the current battery level")
+	}
 }

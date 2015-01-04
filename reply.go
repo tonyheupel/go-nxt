@@ -46,7 +46,7 @@ func (r ReplyTelegram) IsSuccess() bool {
 }
 
 // NewReply creates a new ReplyTelegram for the given command, status, and an optional reply message; pass nil if there is no reply message for the command
-func NewReply(replyForCommand Command, status ReplyStatus, message []byte) *ReplyTelegram {
+func NewReply(replyForCommand CommandCode, status ReplyStatus, message []byte) *ReplyTelegram {
 	return &ReplyTelegram{
 		Telegram: &Telegram{
 			Type:    Reply,
@@ -69,15 +69,14 @@ func newReplyFromBytes(replyBytes []byte, replyLength int) *ReplyTelegram {
 
 	// TODO: Make sure the first byte is 0x02 to indicate a reply
 
-	return NewReply(Command(replyBytes[1]), ReplyStatus(replyBytes[2]), replyMessage)
+	return NewReply(CommandCode(replyBytes[1]), ReplyStatus(replyBytes[2]), replyMessage)
 }
 
 func getReplyFromReader(reader io.Reader) *ReplyTelegram {
 	response := make([]byte, 64)
 
-	numRead, _ := reader.Read(response)
-
 	// TODO: Do not ignore the error here
+	numRead, _ := reader.Read(response)
 
 	return newReplyFromBytes(response, numRead)
 }
