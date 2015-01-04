@@ -19,15 +19,19 @@ func main() {
 
 	fmt.Println("Connected!")
 
-	friendly(n)
+	// Use a more traditional-looking method/check-for-error style
+	methodStyle(n)
+
+	// Pause in between styles to ensure the old commands are done executing
 	time.Sleep(2 * time.Second)
-	channels(n)
+
+	// Use the raw channels style
+	channelStyle(n)
 
 	n.Disconnect()
 }
 
-func friendly(n *nxt.NXT) {
-
+func methodStyle(n *nxt.NXT) {
 	// Normally use StartProgram but we want to see the name of the running program
 	// so we need to wait
 	startProgramReply, err := n.StartProgramSync("DREW.rxe")
@@ -51,17 +55,11 @@ func friendly(n *nxt.NXT) {
 	time.Sleep(3 * time.Second) // Wait 3 seconds before trying to stop
 
 	fmt.Println("Stopping running program...")
-	stopProgramReply, err := n.StopProgramSync()
+	_, err = n.StopProgramSync()
 
 	if err != nil {
 		fmt.Println(err)
 		return
-	}
-
-	if stopProgramReply.IsSuccess() {
-		fmt.Println("Stopped running program successfully!")
-	} else {
-		fmt.Println("Was unable to stop the program.")
 	}
 
 	batteryMillivolts, err := n.GetBatteryLevelMillivolts()
@@ -74,20 +72,20 @@ func friendly(n *nxt.NXT) {
 	fmt.Println("Battery level (mv):", batteryMillivolts)
 }
 
-func channels(n *nxt.NXT) {
+func channelStyle(n *nxt.NXT) {
+	// All reply messages will be sent to this channel
 	reply := make(chan *nxt.ReplyTelegram)
-
-	n.CommandChannel <- nxt.StartProgram("DREW.rxe", reply)
-	fmt.Println("Reply from StartProgram:", <-reply)
 
 	// Normally would pass in nil for the reply channel and not wait,
 	//but we want to see the name of the running program so we need to wait
+	n.CommandChannel <- nxt.StartProgram("DREW.rxe", reply)
+	fmt.Println("Reply from StartProgram:", <-reply)
 
 	n.CommandChannel <- nxt.GetCurrentProgramName(reply)
 	runningProgramReply := nxt.ParseGetCurrentProgramNameReply(<-reply)
 	fmt.Println("Current running program:", runningProgramReply.Filename)
 
-	time.Sleep(3 * time.Second) // Wait 3 seconds
+	time.Sleep(3 * time.Second) // Wait 3 seconds before trying to stop
 
 	fmt.Println("Stopping running program...")
 	n.CommandChannel <- nxt.StopProgram(reply)
