@@ -1,4 +1,3 @@
-// Functions and methods related to battery level interactions with the NXT.
 package nxt
 
 import "fmt"

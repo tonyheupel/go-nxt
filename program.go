@@ -1,4 +1,3 @@
-// Program-related interactions with the NXT.
 package nxt
 
 import "fmt"
