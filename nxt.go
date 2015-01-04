@@ -36,12 +36,12 @@ func NewNXTUsingConnection(name string, port string, connection Connection) *NXT
 }
 
 // Name returns the friendly name of the NXT.
-func (n *NXT) Name() string { return n.name }
+func (n NXT) Name() string { return n.name }
 
 // Port returns the port that the NXT is to be connected to.
-func (n *NXT) Port() string { return n.port }
+func (n NXT) Port() string { return n.port }
 
-func (n *NXT) String() string {
+func (n NXT) String() string {
 	return fmt.Sprintf("NXT \"%s\": %s", n.Name(), n.Port())
 }
 
