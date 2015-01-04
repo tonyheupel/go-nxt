@@ -9,30 +9,44 @@ import (
 // NXT represents the thing that a caller interacts with
 // to control an NXT brick.
 type NXT struct {
-	Name           string
-	DevicePath     string
+	name           string
+	port           string
 	connection     Connection
+	connected      bool
 	CommandChannel chan *Command
 }
 
 // NewNXT creates a new NXT with the given name and
 // will connect to the brick over Bluetooth using
-// the serial port specified at the devicePath argument.
-func NewNXT(name string, devicePath string) *NXT {
-	return NewNXTUsingConnection(name, devicePath, newBluetoothConnection(devicePath))
+// the serial port specified at the port argument.
+func NewNXT(name string, port string) *NXT {
+	return NewNXTUsingConnection(name, port, newBluetoothConnection(port))
 }
 
-func NewNXTUsingConnection(name string, devicePath string, connection Connection) *NXT {
+// NewNXTUsingConnection creates a new NXT with the given name and
+// a connection that implements the Connection interface.
+// This method is good for testing when  passing in a test double for the connection.
+func NewNXTUsingConnection(name string, port string, connection Connection) *NXT {
 	return &NXT{
-		Name:       name,
-		DevicePath: devicePath,
+		name:       name,
+		port:       port,
 		connection: connection,
+		connected:  false,
 	}
 }
+
+// Name returns the friendly name of the NXT.
+func (n *NXT) Name() string { return n.name }
+
+// Port returns the port that the NXT is to be connected to.
+func (n *NXT) Port() string { return n.port }
+
 func (n *NXT) String() string {
-	return fmt.Sprintf("NXT named %s, at %s", n.Name, n.DevicePath)
+	return fmt.Sprintf("NXT \"%s\": %s", n.Name(), n.Port())
 }
 
+// Connect connects the NXT to the port and makes the NXT ready
+// to receive commands.
 func (n *NXT) Connect() error {
 	n.CommandChannel = make(chan *Command)
 
@@ -42,21 +56,28 @@ func (n *NXT) Connect() error {
 		return err
 	}
 
+	n.connected = true
+
 	go n.messageLoop()
 
 	return nil
 }
 
+// Disconnect closes the connection to the port and
 func (n *NXT) Disconnect() (err error) {
+	// Closing the channel will signal the messageLoop with a "zero" message
+	// and the messageLoop should stop listening for commands.
 	close(n.CommandChannel)
 
-	if n.connection != nil {
+	if n.connection != nil && n.connected {
 		err = n.connection.Close()
+		n.connected = false
 	}
 
-	return err
+	return
 }
 
+// messageLoop is the message loop that listens for commands
 func (n *NXT) messageLoop() {
 
 	for {

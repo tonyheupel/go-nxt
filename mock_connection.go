@@ -31,7 +31,7 @@ type mockConnection struct {
 	devicePort string
 }
 
-func (c mockConnection) DevicePort() string {
+func (c mockConnection) Port() string {
 	return c.devicePort
 }
 

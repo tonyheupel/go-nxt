@@ -5,6 +5,7 @@ import (
 	"io"
 )
 
+// bluetoothConnection represents the default connection to an NXT device.
 type bluetoothConnection struct {
 	config  *serial.Config
 	conduit io.ReadWriteCloser
@@ -19,7 +20,7 @@ func newBluetoothConnection(name string) Connection {
 	}
 }
 
-func (b bluetoothConnection) DevicePort() string {
+func (b bluetoothConnection) Port() string {
 	return b.config.Name
 }
 
@@ -37,8 +38,6 @@ func (b *bluetoothConnection) Open() error {
 }
 
 func (b bluetoothConnection) Read(p []byte) (n int, err error) {
-	//TODO: Strip out the first two bytes of bluetooth length headers
-
 	bluetoothMessage := make([]byte, 66)
 
 	bytesRead, err := b.conduit.Read(bluetoothMessage)
@@ -49,7 +48,7 @@ func (b bluetoothConnection) Read(p []byte) (n int, err error) {
 
 	var length int
 	if bytesRead >= 2 {
-		// Remove bluetooth headers and only get length back
+		// Remove bluetooth two-byte length headers and only get length back
 		length = calculateIntFromLSBAndMSB(bluetoothMessage[0], bluetoothMessage[1])
 		copy(p, bluetoothMessage[2:])
 	}
@@ -58,8 +57,9 @@ func (b bluetoothConnection) Read(p []byte) (n int, err error) {
 }
 
 func (b *bluetoothConnection) Write(p []byte) (n int, err error) {
-	//TODO: Add the first two bytes of bluetooth length headers
 	telegramLength := len(p)
+	// Bluetooth messages also require a two-byte header representing the length
+	// of the message being sent (NOT including the two-byte header)
 	bluetoothHeader := []byte{calculateLSB(telegramLength), calculateMSB(telegramLength)}
 
 	bluetoothMessage := append(bluetoothHeader, p...)

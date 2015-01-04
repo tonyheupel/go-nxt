@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-// ReplyStatus is the possible status codes returned as part of a ReplyTelegram's Status value
+// ReplyStatus is the possible status codes returned as part of a ReplyTelegram's Status value.
 type ReplyStatus byte
 
 const (
@@ -29,23 +29,24 @@ const (
 	BadArguments                                          = 0xFF
 )
 
-// ReplyTelegram is the response to a command when the caller waits for the reply
+// ReplyTelegram is the response to a command when the caller waits for the reply.
 type ReplyTelegram struct {
 	*Telegram
 	Status ReplyStatus
 }
 
-// Represent the ReplyTelegram as a string
+// String represents the ReplyTelegram as a string.
 func (r ReplyTelegram) String() string {
 	return fmt.Sprintf("Status: 0x%02x, %v", r.Status, r.Telegram)
 }
 
-// IsSuccess returns true when the reply indicates a successful operation
+// IsSuccess returns true when the reply indicates a successful operation.
 func (r ReplyTelegram) IsSuccess() bool {
 	return r.Status == Success
 }
 
-// NewReply creates a new ReplyTelegram for the given command, status, and an optional reply message; pass nil if there is no reply message for the command
+// NewReply creates a new ReplyTelegram for the given command, status,
+// and an optional reply message; pass nil if there is no reply message for the command.
 func NewReply(replyForCommand CommandCode, status ReplyStatus, message []byte) *ReplyTelegram {
 	return &ReplyTelegram{
 		Telegram: &Telegram{
@@ -57,6 +58,8 @@ func NewReply(replyForCommand CommandCode, status ReplyStatus, message []byte) *
 	}
 }
 
+// newReplyFromBytes reads bytes converts a slice of bytes with the given
+// replyLength (where replyLength <= len(replyBytes)) to a ReplyTelegram.
 func newReplyFromBytes(replyBytes []byte, replyLength int) *ReplyTelegram {
 	var replyMessage []byte
 	if replyLength == len(replyBytes) {
@@ -72,6 +75,8 @@ func newReplyFromBytes(replyBytes []byte, replyLength int) *ReplyTelegram {
 	return NewReply(CommandCode(replyBytes[1]), ReplyStatus(replyBytes[2]), replyMessage)
 }
 
+// getReplyFromReader reads bytes from an io.Reader and returns
+// a ReplyTelegram.
 func getReplyFromReader(reader io.Reader) *ReplyTelegram {
 	response := make([]byte, 64)
 

@@ -2,9 +2,11 @@ package nxt
 
 import "io"
 
+// Connection represents a connection to a port that can be
+// manipulated using an io.ReadWriteCloser.
 type Connection interface {
 	io.ReadWriteCloser
-	DevicePort() string
+	Port() string
 	Open() error
 }
 

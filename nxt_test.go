@@ -15,7 +15,7 @@ func TestNXTStringer(t *testing.T) {
 		return
 	}
 
-	expected, actual := fmt.Sprintf("NXT named %s, at %s", name, devicePath), n.String()
+	expected, actual := fmt.Sprintf("NXT \"%s\": %s", name, devicePath), n.String()
 	if actual != expected {
 		t.Errorf("Expected NXT.String to return \"%s\", but got \"%s\" instead", expected, actual)
 	}
