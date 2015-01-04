@@ -9,9 +9,12 @@ import (
 // NXT represents the thing that a caller interacts with
 // to control an NXT brick.
 type NXT struct {
-	Name       string
-	DevicePath string
-	connection Connection
+	Name              string
+	DevicePath        string
+	connection        Connection
+	CommandChannel    chan Telegram
+	ReplyChannel      chan ReplyTelegram
+	DisconnectChannel chan bool
 }
 
 // NewNXT creates a new NXT with the given name and
@@ -33,9 +36,37 @@ func (n *NXT) String() string {
 }
 
 func (n *NXT) Connect() error {
+	n.CommandChannel = make(chan Telegram)
+	n.ReplyChannel = make(chan ReplyTelegram)
+	n.DisconnectChannel = make(chan bool)
+
+	go n.messageLoop()
+
 	return n.connection.Open()
 }
 
 func (n *NXT) Disconnect() error {
-	return n.connection.Close()
+	err := n.connection.Close()
+	n.DisconnectChannel <- true
+
+	return err
+}
+
+func (n *NXT) messageLoop() {
+
+	for {
+		select {
+		case telegram := <-n.CommandChannel:
+			//TODO: Do it
+			n.connection.Write(telegram.Bytes())
+
+			if telegram.IsResponseRequired() {
+				n.ReplyChannel <- *getReplyFromReader(n.connection)
+			}
+
+		//case <-n.DisconnectChannel:
+		//	n.connection.Close()
+		//	return
+		}
+	}
 }

@@ -27,6 +27,10 @@ func (t Telegram) Bytes() []byte {
 	return append(commandInfo, t.Message...)
 }
 
+func (t Telegram) IsResponseRequired() bool {
+	return t.Type == DirectRequiresResponse || t.Type == SystemRequiresResponse
+}
+
 func (t Telegram) String() string {
 	return fmt.Sprintf("Type: 0x%02x, Command: 0x%02x, Message: %v", t.Type, t.Command, t.Message)
 }
