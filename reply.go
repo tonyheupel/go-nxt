@@ -29,6 +29,31 @@ const (
 	BadArguments                                          = 0xFF
 )
 
+func (rs ReplyStatus) String() string {
+	// Can't make a const of a non-int and non-string struct
+	ReplyStatusMessages := map[ReplyStatus]string{
+		Success: "Success",
+		PendingCommunicationTransactionInProgress: "Pending communication transaction in progress",
+		SpecifiedMailboxQueueIsEmpty:              "Specified mailbox queue is empty",
+		RequestFailed:                             "Request failed",
+		UnknownCommandOpcode:                      "Unknown command opcode",
+		InsanePacket:                              "Insane packet",
+		DataContainsOutOfRangeValues:              "Data contains out of range values",
+		CommunicationBusError:                     "Communication bus error",
+		NoFreeMemoryInCommunicationBuffer:         "No free memory in communication buffer",
+		SpecifiedConnectionIsNotValid:             "Specified connection is not valid",
+		SpecifiedConnectionIsNotConfiguredOrBusy:  "Specified connection is not configured or busy",
+		NoActiveProgram:                           "No active program",
+		IllegalSizeSpecified:                      "Illegal size specified",
+		IllegalMailboxQueueIDSpecified:            "Illegal mailbox queue ID specified",
+		AttemptedToAccessInvalidFieldOfStructure:  "Attempted to access invalid field of structure",
+		BadInputOrOutputSpecified:                 "Bad input or output specified",
+		InsufficientMemoryAvailable:               "Insufficient memory available",
+		BadArguments:                              "Bad arugments",
+	}
+	return ReplyStatusMessages[rs]
+}
+
 // ReplyTelegram is the response to a command when the caller waits for the reply.
 type ReplyTelegram struct {
 	*Telegram
@@ -37,7 +62,7 @@ type ReplyTelegram struct {
 
 // String represents the ReplyTelegram as a string.
 func (r ReplyTelegram) String() string {
-	return fmt.Sprintf("Status: 0x%02x, %v", r.Status, r.Telegram)
+	return fmt.Sprintf("Status: %v, %v", r.Status, r.Telegram)
 }
 
 // IsSuccess returns true when the reply indicates a successful operation.

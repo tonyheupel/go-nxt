@@ -34,7 +34,7 @@ func (n NXT) GetBatteryLevelMillivolts() (int, error) {
 	batteryLevelReply := ParseGetBatteryLevelReply(<-reply)
 
 	if !batteryLevelReply.IsSuccess() {
-		return 0, fmt.Errorf("Error getting battery level: %v", batteryLevelReply)
+		return 0, fmt.Errorf("%v", batteryLevelReply.Status)
 	}
 
 	return batteryLevelReply.BatteryLevelMillivolts, nil

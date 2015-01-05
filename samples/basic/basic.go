@@ -37,8 +37,7 @@ func methodStyle(n *nxt.NXT) {
 	startProgramReply, err := n.StartProgramSync("DREW.rxe")
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		fmt.Println("Error starting a program:", err)
 	}
 
 	fmt.Println("Reply from StartProgram:", startProgramReply)
@@ -46,11 +45,10 @@ func methodStyle(n *nxt.NXT) {
 	runningProgram, err := n.GetCurrentProgramName()
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		fmt.Println("Error getting current program name:", err)
+	} else {
+		fmt.Println("Current running program:", runningProgram)
 	}
-
-	fmt.Println("Current running program:", runningProgram)
 
 	time.Sleep(3 * time.Second) // Wait 3 seconds before trying to stop
 
@@ -58,18 +56,16 @@ func methodStyle(n *nxt.NXT) {
 	_, err = n.StopProgramSync()
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		fmt.Println("Error stopping the running program:", err)
 	}
 
 	batteryMillivolts, err := n.GetBatteryLevelMillivolts()
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		fmt.Println("Error getting the battery level:", err)
+	} else {
+		fmt.Println("Battery level (mv):", batteryMillivolts)
 	}
-
-	fmt.Println("Battery level (mv):", batteryMillivolts)
 }
 
 func channelStyle(n *nxt.NXT) {

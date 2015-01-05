@@ -14,6 +14,18 @@ const (
 	SystemNoResponse                   = 0x81
 )
 
+func (c CommandType) String() string {
+	CommandTypeNames := map[CommandType]string{
+		DirectRequiresResponse: "Direct requiring response",
+		SystemRequiresResponse: "System requiring response",
+		Reply:            "Reply",
+		DirectNoResponse: "Direct",
+		SystemNoResponse: "System",
+	}
+
+	return CommandTypeNames[c]
+}
+
 // CommandCode is the code used to represent the command
 // to send to the NXT in a Telegram.
 type CommandCode byte
@@ -43,7 +55,7 @@ func (t Telegram) IsResponseRequired() bool {
 
 // String represents the Telegram as a string.
 func (t Telegram) String() string {
-	return fmt.Sprintf("Type: 0x%02x, Command: 0x%02x, Message: %v", t.Type, t.Command, t.Message)
+	return fmt.Sprintf("Type: %v, Command: 0x%02x, Message: %v", t.Type, t.Command, t.Message)
 }
 
 // newTelegramWithMessage returns a Telegram with the given values.  If a telegram does

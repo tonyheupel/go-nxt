@@ -59,7 +59,7 @@ func (n NXT) StartProgramSync(filename string) (*ReplyTelegram, error) {
 	startProgramReply := <-reply
 
 	if !startProgramReply.IsSuccess() {
-		return startProgramReply, fmt.Errorf("Error trying to start program \"%s\": %v", filename, startProgramReply)
+		return startProgramReply, fmt.Errorf("%v: \"%s\"", startProgramReply.Status, filename)
 	}
 
 	return startProgramReply, nil
@@ -84,7 +84,7 @@ func (n NXT) StopProgramSync() (*ReplyTelegram, error) {
 	stopProgramReply := <-reply
 
 	if !stopProgramReply.IsSuccess() {
-		return stopProgramReply, fmt.Errorf("Error trying to stop program: %v", stopProgramReply)
+		return stopProgramReply, fmt.Errorf("%v", stopProgramReply.Status)
 	}
 
 	return stopProgramReply, nil
@@ -101,7 +101,7 @@ func (n NXT) GetCurrentProgramName() (string, error) {
 	programNameReply := ParseGetCurrentProgramNameReply(<-reply)
 
 	if !programNameReply.IsSuccess() {
-		return "", fmt.Errorf("Error getting current program name:", programNameReply)
+		return "", fmt.Errorf("%v", programNameReply.Status)
 	}
 
 	return programNameReply.Filename, nil
