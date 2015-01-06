@@ -21,6 +21,7 @@ The most basic usage can be done using the NXT class by connecting your NXT 2.0
 brick over Bluetooth.
 
 There are two main ways to interact with an NXT instance:
+
 1. Tradinational method calls on the NXT instance, checking for errors
 2. Interacting with the CommandChannel on the NXT directly.
 
