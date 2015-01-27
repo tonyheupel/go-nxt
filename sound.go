@@ -33,6 +33,12 @@ func PlayTone(frequency int, duration int, replyChannel chan *ReplyTelegram) *Co
 	return NewDirectCommand(0x03, message, replyChannel)
 }
 
+// StopSoundPlayback tells the NXT to stop playing whatever sound
+// is currently playing.
+func StopSoundPlayback(replyChannel chan *ReplyTelegram) *Command {
+	return NewDirectCommand(0x0C, nil, replyChannel)
+}
+
 // PlaySoundFile plays the sound file with the given filename and
 // loops the file if true is passed in for loop; does not loop if
 // false is passed in.
@@ -88,5 +94,29 @@ func (n NXT) PlayToneSync(frequency int, duration int) (*ReplyTelegram, error) {
 	}
 
 	return playToneReply, nil
+}
 
+// StopSoundPlayback tells the NXT to stop playing whatever sound
+// is currently playing.
+// This call is asynchronous and does not wait for a reply.  To wait
+// for a reply to see if the call is successful, use PlayToneSync
+func (n NXT) StopSoundPlayback() {
+	n.CommandChannel <- StopSoundPlayback(nil)
+}
+
+// StopSoundPlaybackSync tells the NXT to stop playing whatever sound
+// is currently playing.
+// This call is snchronous waits for a reply.  If there was a problem,
+// it will return a non-nil error.
+func (n NXT) StopSoundPlaybackSync() (*ReplyTelegram, error) {
+	reply := make(chan *ReplyTelegram)
+
+	n.CommandChannel <- StopSoundPlayback(reply)
+	stopSoundPlaybackReply := <-reply
+
+	if !stopSoundPlaybackReply.IsSuccess() {
+		return stopSoundPlaybackReply, fmt.Errorf("%v", stopSoundPlaybackReply.Status)
+	}
+
+	return stopSoundPlaybackReply, nil
 }
