@@ -1,6 +1,5 @@
 package nxt
 
-// SOUND
 import "fmt"
 
 // PlaySoundFile creates a Command to play a sound file given a filename and
