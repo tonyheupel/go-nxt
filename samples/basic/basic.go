@@ -59,6 +59,23 @@ func methodStyle(n *nxt.NXT) {
 		fmt.Println("Error stopping the running program:", err)
 	}
 
+	playSoundFileReply, err := n.PlaySoundFileSync("Green.rso", false)
+
+	if err != nil {
+		fmt.Println("Error playing the sound file \"Green.rso\":", err)
+	}
+
+	fmt.Println("Reply from PlaySoundFile:", playSoundFileReply)
+
+	fmt.Println("Playing Convert A for 3 seconds...")
+	playToneReply, err := n.PlayToneSync(440, 3000)
+
+	if err != nil {
+		fmt.Println("Error playing the tone:", err)
+	}
+
+	fmt.Println("Reply from PlayTone:", playToneReply)
+
 	batteryMillivolts, err := n.GetBatteryLevelMillivolts()
 
 	if err != nil {
@@ -92,6 +109,28 @@ func channelStyle(n *nxt.NXT) {
 		fmt.Println("Stopped running program successfully!")
 	} else {
 		fmt.Println("Was unable to stop the program.")
+	}
+
+	fmt.Println("Playing sound file \"Green\"...")
+	n.CommandChannel <- nxt.PlaySoundFile("Green.rso", false, reply)
+
+	playSoundFileReply := <-reply
+
+	if playSoundFileReply.IsSuccess() {
+		fmt.Println("Played sound file successfully!")
+	} else {
+		fmt.Println("Was unable to play the sound file:", playSoundFileReply)
+	}
+
+	fmt.Println("Playing Concert A (440Hz) for 3 seconds...")
+	n.CommandChannel <- nxt.PlayTone(440, 3000, reply)
+
+	playToneReply := <-reply
+
+	if playToneReply.IsSuccess() {
+		fmt.Println("Played Concert A!")
+	} else {
+		fmt.Println("Was unable to play the tone:", playToneReply)
 	}
 
 	n.CommandChannel <- nxt.GetBatteryLevel(reply)

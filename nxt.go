@@ -1,4 +1,4 @@
-// The nxt package provides tools to allow one to control a
+// Package nxt provides tools to allow one to control a
 // Lego Mindstorms NXT 2.0.
 package nxt
 
